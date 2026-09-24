@@ -46,9 +46,69 @@
     },
     {
       "name": "EdgeActionExecutionFilters"
+    },
+    {
+      "name": "EdgeActionOperations"
+    },
+    {
+      "name": "EdgeActionOperationResults"
     }
   ],
   "paths": {
+    "/subscriptions/{subscriptionId}/providers/Microsoft.Cdn/edgeActionOperationResults/{operationId}": {
+      "get": {
+        "operationId": "EdgeActionOperationResults_Get",
+        "tags": [
+          "EdgeActionOperationResults"
+        ],
+        "description": "Returns the result of an Edge Action asynchronous operation.",
+        "parameters": [
+          {
+            "$ref": "../../../../../../common-types/resource-management/v6/types.json#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "../../../../../../common-types/resource-management/v6/types.json#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "../../../../../../common-types/resource-management/v6/types.json#/parameters/OperationIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Azure operation completed successfully.",
+            "schema": {
+              "$ref": "#/definitions/EdgeActionOperationResult"
+            }
+          },
+          "202": {
+            "description": "The request has been accepted for processing, but processing has not yet completed.",
+            "headers": {
+              "Retry-After": {
+                "type": "integer",
+                "format": "int32",
+                "description": "The Retry-After header can indicate how long the client should wait before polling the operation status.",
+                "minimum": 10,
+                "maximum": 600
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "../../../../../../common-types/resource-management/v6/types.json#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "GetEdgeActionOperationResult": {
+            "$ref": "./examples/EdgeActionOperationResults_Get.json"
+          },
+          "GetEdgeActionOperationResultWhileRunning": {
+            "$ref": "./examples/EdgeActionOperationResults_GetRunning.json"
+          }
+        }
+      }
+    },
     "/subscriptions/{subscriptionId}/providers/Microsoft.Cdn/edgeActions": {
       "get": {
         "operationId": "EdgeActions_ListBySubscription",
@@ -85,6 +145,48 @@
         },
         "x-ms-pageable": {
           "nextLinkName": "nextLink"
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/edgeActionOperations/{operationId}": {
+      "get": {
+        "operationId": "EdgeActionOperations_Get",
+        "tags": [
+          "EdgeActionOperations"
+        ],
+        "description": "Returns the current status of an Edge Action asynchronous operation.",
+        "parameters": [
+          {
+            "$ref": "../../../../../../common-types/resource-management/v6/types.json#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "../../../../../../common-types/resource-management/v6/types.json#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "../../../../../../common-types/resource-management/v6/types.json#/parameters/ResourceGroupNameParameter"
+          },
+          {
+            "$ref": "../../../../../../common-types/resource-management/v6/types.json#/parameters/OperationIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Azure operation completed successfully.",
+            "schema": {
+              "$ref": "#/definitions/EdgeActionOperationStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "../../../../../../common-types/resource-management/v6/types.json#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "GetEdgeActionOperationStatus": {
+            "$ref": "./examples/EdgeActionOperations_Get.json"
+          }
         }
       }
     },
@@ -1678,6 +1780,116 @@
         "value"
       ]
     },
+    "EdgeActionOperationResult": {
+      "type": "object",
+      "description": "The result of an Edge Action asynchronous operation. This is the body served by the `Location`\npolling URL once the operation has completed. It carries the same operation record as\n`EdgeActionOperationStatus`, so a caller that followed either header sees one consistent\noutcome, with the operation-specific payload in `properties`.",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "description": "Edge Action specific properties for the operation status resource. Only present when the operation ended with a Succeeded status.",
+          "additionalProperties": {},
+          "readOnly": true
+        },
+        "status": {
+          "$ref": "#/definitions/OperationStatus",
+          "description": "The current status of the operation.",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "description": "The fully qualified identifier of the operation status resource itself, which is the URL used to read this status. Preview api-versions returned this same value under the name resourceId.",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the operation status resource, which is the operation identifier.",
+          "readOnly": true
+        },
+        "operationType": {
+          "type": "string",
+          "description": "The operation type.",
+          "readOnly": true
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The start time of the operation.",
+          "readOnly": true
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The end time of the operation (if completed).",
+          "readOnly": true
+        },
+        "error": {
+          "$ref": "../../../../../../common-types/resource-management/v6/types.json#/definitions/ErrorDetail",
+          "description": "The error detail, present when the operation ended with a Failed or Canceled status.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "status",
+        "id",
+        "name",
+        "operationType"
+      ]
+    },
+    "EdgeActionOperationStatus": {
+      "type": "object",
+      "description": "The current status of an Edge Action asynchronous operation. This is the body served by the\n`Azure-AsyncOperation` polling URL, and it follows the Azure Resource Manager asynchronous\noperation status format: `id` addresses the status resource, `name` is the operation\nidentifier, and `properties` carries the operation outcome once the operation succeeds.\n`percentComplete` and nested `operations` are intentionally omitted, because the service\nreports neither. There is no `resourceId`: the preview api-versions returned that name\ncarrying the operation status resource URL, which is the value `id` now carries, so this is\na rename rather than a dropped field. The identifier of the resource the operation ran\nagainst is not recorded on the operation, so no field claims to supply it.",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "description": "Edge Action specific properties for the operation status resource. Only present when the operation ended with a Succeeded status.",
+          "additionalProperties": {},
+          "readOnly": true
+        },
+        "status": {
+          "$ref": "#/definitions/OperationStatus",
+          "description": "The current status of the operation.",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "description": "The fully qualified identifier of the operation status resource itself, which is the URL used to read this status. Preview api-versions returned this same value under the name resourceId.",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the operation status resource, which is the operation identifier.",
+          "readOnly": true
+        },
+        "operationType": {
+          "type": "string",
+          "description": "The operation type.",
+          "readOnly": true
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The start time of the operation.",
+          "readOnly": true
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The end time of the operation (if completed).",
+          "readOnly": true
+        },
+        "error": {
+          "$ref": "../../../../../../common-types/resource-management/v6/types.json#/definitions/ErrorDetail",
+          "description": "The error detail, present when the operation ended with a Failed or Canceled status.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "status",
+        "id",
+        "name",
+        "operationType"
+      ]
+    },
     "EdgeActionProperties": {
       "type": "object",
       "description": "Represents an edge action properties",
@@ -1905,6 +2117,43 @@
             "name": "Failed",
             "value": "Failed",
             "description": "Validation failed"
+          }
+        ]
+      },
+      "readOnly": true
+    },
+    "OperationStatus": {
+      "type": "string",
+      "description": "The status of an operation",
+      "enum": [
+        "Running",
+        "Succeeded",
+        "Failed",
+        "Canceled"
+      ],
+      "x-ms-enum": {
+        "name": "OperationStatus",
+        "modelAsString": true,
+        "values": [
+          {
+            "name": "Running",
+            "value": "Running",
+            "description": "Operation is running"
+          },
+          {
+            "name": "Succeeded",
+            "value": "Succeeded",
+            "description": "Operation succeeded"
+          },
+          {
+            "name": "Failed",
+            "value": "Failed",
+            "description": "Operation failed"
+          },
+          {
+            "name": "Canceled",
+            "value": "Canceled",
+            "description": "Operation was canceled"
           }
         ]
       },

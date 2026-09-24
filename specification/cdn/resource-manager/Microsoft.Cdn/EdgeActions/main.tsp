@@ -121,7 +121,7 @@ interface EdgeActions {
     EdgeAction,
     EdgeActionUpdate,
     LroHeaders = ArmCombinedLroHeaders<
-      EdgeActionOperationProperties,
+      EdgeActionOperationStatus,
       EdgeAction
     > &
       EdgeActionRetryAfterHeader
@@ -148,14 +148,14 @@ interface EdgeActions {
     EdgeAction,
     Azure.ResourceManager.Foundations.BaseParameters<EdgeAction>,
     ArmCombinedLroHeaders<
-      StatusMonitor = EdgeActionOperationProperties,
+      StatusMonitor = EdgeActionOperationStatus,
       FinalResult = void
     > &
       EdgeActionRetryAfterHeader,
     {},
     | ArmDeletedResponse
     | ArmDeleteAcceptedLroResponse<ArmCombinedLroHeaders<
-        StatusMonitor = EdgeActionOperationProperties,
+        StatusMonitor = EdgeActionOperationStatus,
         FinalResult = void
       > &
         EdgeActionRetryAfterHeader>
@@ -221,7 +221,7 @@ interface EdgeActionVersions {
     EdgeActionVersion,
     EdgeActionVersionUpdate,
     LroHeaders = ArmCombinedLroHeaders<
-      StatusMonitor = EdgeActionOperationProperties,
+      StatusMonitor = EdgeActionOperationStatus,
       FinalResult = EdgeActionVersion
     > &
       EdgeActionRetryAfterHeader
@@ -248,14 +248,14 @@ interface EdgeActionVersions {
     EdgeActionVersion,
     Azure.ResourceManager.Foundations.BaseParameters<EdgeActionVersion>,
     ArmCombinedLroHeaders<
-      StatusMonitor = EdgeActionOperationProperties,
+      StatusMonitor = EdgeActionOperationStatus,
       FinalResult = void
     > &
       EdgeActionRetryAfterHeader,
     {},
     | ArmDeletedResponse
     | ArmDeleteAcceptedLroResponse<ArmCombinedLroHeaders<
-        StatusMonitor = EdgeActionOperationProperties,
+        StatusMonitor = EdgeActionOperationStatus,
         FinalResult = void
       > &
         EdgeActionRetryAfterHeader>
@@ -282,7 +282,7 @@ interface EdgeActionVersions {
     VersionCode,
     EdgeActionVersionProperties,
     LroHeaders = ArmCombinedLroHeaders<
-      StatusMonitor = EdgeActionOperationProperties,
+      StatusMonitor = EdgeActionOperationStatus,
       FinalResult = EdgeActionVersionProperties
     > &
       EdgeActionRetryAfterHeader
@@ -330,7 +330,7 @@ interface EdgeActionVersions {
     EdgeActionVersion,
     void,
     LroHeaders = ArmCombinedLroHeaders<
-      StatusMonitor = EdgeActionOperationProperties,
+      StatusMonitor = EdgeActionOperationStatus,
       FinalResult = void
     > &
       EdgeActionRetryAfterHeader
@@ -379,7 +379,7 @@ interface EdgeActionExecutionFilters {
       EdgeActionExecutionFilterProperties
     >,
     LroHeaders = ArmCombinedLroHeaders<
-      StatusMonitor = EdgeActionOperationProperties,
+      StatusMonitor = EdgeActionOperationStatus,
       FinalResult = EdgeActionExecutionFilter
     > &
       EdgeActionRetryAfterHeader
@@ -406,18 +406,59 @@ interface EdgeActionExecutionFilters {
     EdgeActionExecutionFilter,
     Azure.ResourceManager.Foundations.BaseParameters<EdgeActionExecutionFilter>,
     ArmCombinedLroHeaders<
-      StatusMonitor = EdgeActionOperationProperties,
+      StatusMonitor = EdgeActionOperationStatus,
       FinalResult = void
     > &
       EdgeActionRetryAfterHeader,
     {},
     | ArmDeletedResponse
     | ArmDeleteAcceptedLroResponse<ArmCombinedLroHeaders<
-        StatusMonitor = EdgeActionOperationProperties,
+        StatusMonitor = EdgeActionOperationStatus,
         FinalResult = void
       > &
         EdgeActionRetryAfterHeader>
     | ArmDeletedNoContentResponse
   >;
   listByEdgeAction is ArmResourceListByParent<EdgeActionExecutionFilter>;
+}
+
+/**
+ * Edge Action asynchronous operation status, addressed by the `Azure-AsyncOperation` header.
+ * The route is resource-group scoped because that is the address the service already emits.
+ */
+@added(Versions.`2026-10-01`)
+@armResourceOperations(#{ allowStaticRoutes: true, omitTags: true })
+interface EdgeActionOperations {
+  /** Returns the current status of an Edge Action asynchronous operation. */
+  @tag("EdgeActionOperations")
+  @route("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/edgeActionOperations/{operationId}")
+  @get
+  get(
+    ...ApiVersionParameter,
+    ...SubscriptionIdParameter,
+    ...ResourceGroupParameter,
+    ...Azure.ResourceManager.Foundations.OperationIdParameter,
+  ): ArmResponse<EdgeActionOperationStatus> | ErrorResponse;
+}
+
+/**
+ * Edge Action asynchronous operation results, addressed by the `Location` header. The route is
+ * subscription scoped so that the result of a delete outlives the resource group it removed.
+ */
+@added(Versions.`2026-10-01`)
+@armResourceOperations(#{ allowStaticRoutes: true, omitTags: true })
+interface EdgeActionOperationResults {
+  /** Returns the result of an Edge Action asynchronous operation. */
+  #suppress "@azure-tools/typespec-azure-resource-manager/lro-location-header" "The 202 is returned by the result endpoint itself while the operation is still running. The caller keeps polling the same Location URL it already holds, so repeating the header would be redundant. Microsoft.Kusto and Microsoft.DataProtection suppress the same rule on their operation-result routes."
+  @tag("EdgeActionOperationResults")
+  @route("/subscriptions/{subscriptionId}/providers/Microsoft.Cdn/edgeActionOperationResults/{operationId}")
+  @get
+  get(
+    ...ApiVersionParameter,
+    ...SubscriptionIdParameter,
+    ...Azure.ResourceManager.Foundations.OperationIdParameter,
+  ):
+    | ArmResponse<EdgeActionOperationResult>
+    | (AcceptedResponse & EdgeActionRetryAfterHeader)
+    | ErrorResponse;
 }

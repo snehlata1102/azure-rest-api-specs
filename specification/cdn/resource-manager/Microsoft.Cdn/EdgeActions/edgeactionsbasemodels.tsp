@@ -140,8 +140,8 @@ model EdgeActionRetryAfterHeader {
 @added(Versions.`2026-10-01`)
 model EdgeActionPutLroHeaders<FinalResult extends TypeSpec.Reflection.Model> {
   ...ArmAsyncOperationHeader<
-    StatusMonitor = EdgeActionOperationProperties,
-    UrlValue = ResourceLocation<EdgeActionOperationProperties>,
+    StatusMonitor = EdgeActionOperationStatus,
+    UrlValue = ResourceLocation<EdgeActionOperationStatus>,
     FinalResult = FinalResult
   >;
   ...EdgeActionRetryAfterHeader;
@@ -322,20 +322,44 @@ model VersionCode {
   namePreview: string;
 }
 
-/** Edge action operation properties */
-@added(Versions.`2026-10-01`)
-model EdgeActionOperationProperties {
-  @doc("The resource id of the operation.")
-  @visibility(Lifecycle.Read)
-  resourceId: string;
+/** Error details for operations */
+model ErrorDetails {
+  @doc("Error code.")
+  code: string;
 
-  @doc("The GUID representing operationID.")
+  @doc("Detailed error message.")
+  message: string;
+}
+
+/**
+ * The current status of an Edge Action asynchronous operation. This is the body served by the
+ * `Azure-AsyncOperation` polling URL, and it follows the Azure Resource Manager asynchronous
+ * operation status format: `id` addresses the status resource, `name` is the operation
+ * identifier, and `properties` carries the operation outcome once the operation succeeds.
+ * `percentComplete` and nested `operations` are intentionally omitted, because the service
+ * reports neither. There is no `resourceId`: the preview api-versions returned that name
+ * carrying the operation status resource URL, which is the value `id` now carries, so this is
+ * a rename rather than a dropped field. The identifier of the resource the operation ran
+ * against is not recorded on the operation, so no field claims to supply it.
+ */
+@added(Versions.`2026-10-01`)
+model EdgeActionOperationStatus {
+  #suppress "@azure-tools/typespec-azure-resource-manager/arm-no-record" "The success snapshot is the body the originating operation would have returned synchronously, so its shape varies by operation. Microsoft.DBforMySQL OperationStatusExtendedResult sets the same precedent."
+  @doc("Edge Action specific properties for the operation status resource. Only present when the operation ended with a Succeeded status.")
   @visibility(Lifecycle.Read)
-  operationId: string;
+  properties?: Record<unknown>;
 
   @doc("The current status of the operation.")
   @visibility(Lifecycle.Read)
   status: OperationStatus;
+
+  @doc("The fully qualified identifier of the operation status resource itself, which is the URL used to read this status. Preview api-versions returned this same value under the name resourceId.")
+  @visibility(Lifecycle.Read)
+  id: string;
+
+  @doc("The name of the operation status resource, which is the operation identifier.")
+  @visibility(Lifecycle.Read)
+  name: string;
 
   @doc("The operation type.")
   @visibility(Lifecycle.Read)
@@ -349,16 +373,16 @@ model EdgeActionOperationProperties {
   @visibility(Lifecycle.Read)
   endTime?: utcDateTime;
 
-  @doc("Error details, if applicable.")
+  @doc("The error detail, present when the operation ended with a Failed or Canceled status.")
   @visibility(Lifecycle.Read)
-  error?: ErrorDetails;
+  error?: Azure.ResourceManager.CommonTypes.ErrorDetail;
 }
 
-/** Error details for operations */
-model ErrorDetails {
-  @doc("Error code.")
-  code: string;
-
-  @doc("Detailed error message.")
-  message: string;
-}
+/**
+ * The result of an Edge Action asynchronous operation. This is the body served by the `Location`
+ * polling URL once the operation has completed. It carries the same operation record as
+ * `EdgeActionOperationStatus`, so a caller that followed either header sees one consistent
+ * outcome, with the operation-specific payload in `properties`.
+ */
+@added(Versions.`2026-10-01`)
+model EdgeActionOperationResult is EdgeActionOperationStatus;

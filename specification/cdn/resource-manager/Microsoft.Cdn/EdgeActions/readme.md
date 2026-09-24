@@ -48,7 +48,7 @@ preserve the published operation IDs and preview contracts.
 
 The stable API distinguishes operation **status** from the operation's logical
 **result**. `Azure-AsyncOperation` identifies status polling: a successful status
-read returns HTTP `200` and `EdgeActionOperationProperties`, including `status`
+read returns HTTP `200` and `EdgeActionOperationStatus`, including `status`
 and, for a failed operation, `error.code` and `error.message`. A failed operation
 remains failed even if resource rollback restores a healthy resource.
 
