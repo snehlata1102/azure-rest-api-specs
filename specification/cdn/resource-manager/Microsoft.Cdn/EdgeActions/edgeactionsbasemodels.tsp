@@ -157,9 +157,11 @@ model EdgeActionProperties {
 /** The type used for update operations of the EdgeAction. */
 model EdgeActionUpdate {
   @doc("The resource-specific properties for this resource.")
+  @removed(Versions.`2026-10-01`)
   properties?: EdgeActionPropertiesUpdate;
 
   @doc("The sku type of the edge action")
+  @removed(Versions.`2026-10-01`)
   sku?: SkuTypeUpdate;
 
   #suppress "@azure-tools/typespec-azure-resource-manager/arm-no-record" "FIXME: Update justification, follow aka.ms/tsp/conversion-fix for details"
@@ -187,7 +189,14 @@ model EdgeActionVersionProperties {
   provisioningState?: ProvisioningState;
 
   @doc("The active state")
+  @removed(Versions.`2026-10-01`)
+  @renamedFrom(Versions.`2026-10-01`, "isDefaultVersion")
   @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Update)
+  isDefaultVersionPreview: EdgeActionIsDefaultVersion;
+
+  @doc("The active state")
+  @added(Versions.`2026-10-01`)
+  @visibility(Lifecycle.Read)
   isDefaultVersion: EdgeActionIsDefaultVersion;
 
   @doc("The last update time in UTC for package update")
@@ -227,8 +236,10 @@ model VersionCode {
   content: string;
 
   @doc("The version code name")
+  @removed(Versions.`2026-10-01`)
+  @renamedFrom(Versions.`2026-10-01`, "name")
   @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Update)
-  name: string;
+  namePreview: string;
 }
 
 /** Edge action operation properties */

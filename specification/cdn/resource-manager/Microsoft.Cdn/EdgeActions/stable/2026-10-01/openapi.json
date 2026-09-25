@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Microsoft.Cdn/EdgeAction",
-    "version": "2025-12-01-preview",
+    "version": "2026-10-01",
     "x-typespec-generated": [
       {
         "emitter": "@azure-tools/typespec-autorest"
@@ -1589,22 +1589,10 @@
         "attachments"
       ]
     },
-    "EdgeActionPropertiesUpdate": {
-      "type": "object",
-      "description": "Represents an edge action properties"
-    },
     "EdgeActionUpdate": {
       "type": "object",
       "description": "The type used for update operations of the EdgeAction.",
       "properties": {
-        "properties": {
-          "$ref": "#/definitions/EdgeActionPropertiesUpdate",
-          "description": "The resource-specific properties for this resource."
-        },
-        "sku": {
-          "$ref": "#/definitions/SkuTypeUpdate",
-          "description": "The sku type of the edge action"
-        },
         "tags": {
           "type": "object",
           "description": "Resource tags.",
@@ -1723,11 +1711,7 @@
         "isDefaultVersion": {
           "$ref": "#/definitions/EdgeActionIsDefaultVersion",
           "description": "The active state",
-          "x-ms-mutability": [
-            "read",
-            "update",
-            "create"
-          ]
+          "readOnly": true
         },
         "lastPackageUpdateTime": {
           "type": "string",
@@ -1765,15 +1749,6 @@
         "deploymentType": {
           "$ref": "#/definitions/EdgeActionVersionDeploymentType",
           "description": "The deployment type",
-          "x-ms-mutability": [
-            "read",
-            "update",
-            "create"
-          ]
-        },
-        "isDefaultVersion": {
-          "$ref": "#/definitions/EdgeActionIsDefaultVersion",
-          "description": "The active state",
           "x-ms-mutability": [
             "read",
             "update",
@@ -1868,20 +1843,6 @@
         "tier"
       ]
     },
-    "SkuTypeUpdate": {
-      "type": "object",
-      "description": "The SKU type for update operations",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name of the SKU"
-        },
-        "tier": {
-          "type": "string",
-          "description": "The tier of the SKU"
-        }
-      }
-    },
     "VersionCode": {
       "type": "object",
       "description": "Version code information for edge action",
@@ -1894,20 +1855,10 @@
             "update",
             "create"
           ]
-        },
-        "name": {
-          "type": "string",
-          "description": "The version code name",
-          "x-ms-mutability": [
-            "read",
-            "update",
-            "create"
-          ]
         }
       },
       "required": [
-        "content",
-        "name"
+        "content"
       ]
     }
   },
