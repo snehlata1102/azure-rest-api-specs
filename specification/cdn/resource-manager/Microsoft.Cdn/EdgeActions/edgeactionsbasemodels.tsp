@@ -136,6 +136,19 @@ model EdgeActionRetryAfterHeader {
   retryAfter?: int32;
 }
 
+// The ARM asynchronous contract requires the result endpoint to repeat Location on every
+// non-final 202, so a client that retains only the most recent response can still poll.
+/** Polling headers returned by the operation-result endpoint while the result is not final. */
+@added(Versions.`2026-10-01`)
+model EdgeActionOperationResultPollingHeaders {
+  /** The URL to poll for the result of this operation. */
+  @Azure.Core.pollingLocation
+  @header("Location")
+  location: url;
+
+  ...EdgeActionRetryAfterHeader;
+}
+
 /** Polling headers for an asynchronous EdgeActions PUT response. */
 @added(Versions.`2026-10-01`)
 model EdgeActionPutLroHeaders<FinalResult extends TypeSpec.Reflection.Model> {

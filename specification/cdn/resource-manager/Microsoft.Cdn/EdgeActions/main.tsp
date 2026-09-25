@@ -444,12 +444,15 @@ interface EdgeActionOperations {
 /**
  * Edge Action asynchronous operation results, addressed by the `Location` header. The route is
  * subscription scoped so that the result of a delete outlives the resource group it removed.
+ * While the result is not final the endpoint returns `202` and repeats `Location`, as the ARM
+ * asynchronous contract requires. On completion it returns the response the originating operation
+ * would have produced synchronously: `200` with the result body, or `204` for the operations that
+ * complete without one, which are the three deletes and `swapDefault`.
  */
 @added(Versions.`2026-10-01`)
 @armResourceOperations(#{ allowStaticRoutes: true, omitTags: true })
 interface EdgeActionOperationResults {
   /** Returns the result of an Edge Action asynchronous operation. */
-  #suppress "@azure-tools/typespec-azure-resource-manager/lro-location-header" "The 202 is returned by the result endpoint itself while the operation is still running. The caller keeps polling the same Location URL it already holds, so repeating the header would be redundant. Microsoft.Kusto and Microsoft.DataProtection suppress the same rule on their operation-result routes."
   @tag("EdgeActionOperationResults")
   @route("/subscriptions/{subscriptionId}/providers/Microsoft.Cdn/edgeActionOperationResults/{operationId}")
   @get
@@ -459,6 +462,7 @@ interface EdgeActionOperationResults {
     ...Azure.ResourceManager.Foundations.OperationIdParameter,
   ):
     | ArmResponse<EdgeActionOperationResult>
-    | (AcceptedResponse & EdgeActionRetryAfterHeader)
+    | (AcceptedResponse & EdgeActionOperationResultPollingHeaders)
+    | ArmNoContentResponse<"The operation completed successfully and produced no content.">
     | ErrorResponse;
 }

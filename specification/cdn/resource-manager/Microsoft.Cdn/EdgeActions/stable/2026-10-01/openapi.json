@@ -83,6 +83,11 @@
           "202": {
             "description": "The request has been accepted for processing, but processing has not yet completed.",
             "headers": {
+              "Location": {
+                "type": "string",
+                "format": "uri",
+                "description": "The URL to poll for the result of this operation."
+              },
               "Retry-After": {
                 "type": "integer",
                 "format": "int32",
@@ -91,6 +96,9 @@
                 "maximum": 600
               }
             }
+          },
+          "204": {
+            "description": "The operation completed successfully and produced no content."
           },
           "default": {
             "description": "An unexpected error response.",
