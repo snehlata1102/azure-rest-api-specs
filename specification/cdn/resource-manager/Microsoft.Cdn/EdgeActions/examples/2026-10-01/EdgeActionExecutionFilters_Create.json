@@ -30,6 +30,10 @@
           "provisioningState": "Succeeded",
           "lastUpdateTime": "2024-04-25T15:19:23Z"
         }
+      },
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/resourcegroups/resourceGroupName/providers/Microsoft.Cdn/edgeActionOperations/operationId?api-version=2026-10-01",
+        "Retry-After": 10
       }
     },
     "200": {

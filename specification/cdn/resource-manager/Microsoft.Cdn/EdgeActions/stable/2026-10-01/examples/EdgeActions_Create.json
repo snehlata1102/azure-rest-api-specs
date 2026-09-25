@@ -29,6 +29,10 @@
           "provisioningState": "Succeeded",
           "attachments": []
         }
+      },
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/resourcegroups/resourceGroupName/providers/Microsoft.Cdn/edgeActionOperations/operationId?api-version=2026-10-01",
+        "Retry-After": 10
       }
     },
     "200": {
